@@ -20,14 +20,20 @@ public class Hotel {
      *     passed from 'ManageHotel' {@link ManageHotel}.
      *</p>
      * @param hotelName Hotel name assigned to this class.
-     * @param numOfRooms Number of rooms initially assigned to this class.
      */
-    public Hotel(String hotelName, int numOfRooms){
+    public Hotel(String hotelName, int numExe, int numDlx, int numStd){
         this.hotelName = hotelName;
         this.reservations = new ArrayList<>();
         this.rooms = new ArrayList<>();
-        for (int i = 1; i <= numOfRooms; i++)
-            rooms.add(i - 1, new Room(i));
+
+        for(int i = 1; i <= numExe; i++)
+            rooms.add(new ExecutiveRoom(300 + i));
+
+        for(int i = 1; i <= numDlx; i++)
+            rooms.add(new DeluxeRoom(200 + i));
+
+        for(int i = 1; i <= numStd; i++)
+            rooms.add(new StandardRoom(100 + i));
     }
 
     /***
@@ -92,7 +98,19 @@ public class Hotel {
         float earnings = getHotelEarnings();
         System.out.println("\nHotel Name: " + hotelName);
         System.out.println("Earnings for the month: " + earnings);
-        System.out.println("Total number of rooms: " + rooms.size());
+        System.out.println("\nTotal number of rooms: " + rooms.size());
+        if (numStandard() > 0) {
+            System.out.print("Standard Rooms: " + numStandard());
+            System.out.println(" [" + 101 + " to " + (100 + numStandard()) + "]");
+        }
+        if(numDeluxe() > 0) {
+            System.out.print("Deluxe Rooms: " + numDeluxe());
+            System.out.println(" [" + 201 + " to " + (200 + numDeluxe()) + "]");
+        }
+        if(numExec() > 0) {
+            System.out.print("Executive Rooms: " + numExec());
+            System.out.println(" [" + 301 + " to " + (300 + numExec()) + "]");
+        }
     }
 
 
@@ -113,10 +131,15 @@ public class Hotel {
      * @param roomNum The room number to view room details.
      */
     public void viewRoomInfo(int roomNum){
-        int daysAvailable, daysOccupied = 0;
+        int daysAvailable, daysOccupied = 0, index = 0;
 
         System.out.println("\nRoom " + roomNum + ": ");
-        System.out.println("Price per night: " + rooms.get(roomNum - 1).getRoomPrice());
+        for(Room room : rooms) {
+            if(roomNum == room.getRoomNum())
+                break;
+            index++;
+        }
+        System.out.println("Price per night: " + rooms.get(index).getRoomPrice());
 
         for(Reservation reservation : reservations){
             if(reservation.getRoomNum() == roomNum)
@@ -144,18 +167,44 @@ public class Hotel {
      * @param checkOutDate Check-out date in "DD" format.
      * @return The boolean value of the status after adding a reservation.
      */
-    public boolean setReservation(String guestName, int checkInDate, int checkOutDate){
-        int i = 0;
+    public boolean setReservation(String guestName, int checkInDate, int checkOutDate, int roomType){
+        int roomNum;
 
-        for(Room room : rooms){
-            if (room.addReservation(guestName, checkInDate, checkOutDate)){
-                reservations.add(new Reservation(guestName, checkInDate, checkOutDate, i + 1,
+        if(roomType == 1){ // Room is a standard room
+            for(Room room : rooms){
+                if(room instanceof StandardRoom){
+                    roomNum = room.getRoomNum();
+                    if(room.addReservation(guestName, checkInDate, checkOutDate)) {
+                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, roomNum,
                                 room.getRoomPrice()));
-                return true;
+                        return true;
+                    }
+                }
             }
-            i++;
+        } else if (roomType == 2) { // Room is a deluxe room
+            for(Room room : rooms){
+                if(room instanceof DeluxeRoom){
+                    roomNum = room.getRoomNum();
+                    if(room.addReservation(guestName, checkInDate, checkOutDate)) {
+                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, roomNum,
+                                room.getRoomPrice()));
+                        return true;
+                    }
+                }
+            }
+        } else if (roomType == 3) { // Room is an executive room
+            for(Room room : rooms){
+                if(room instanceof ExecutiveRoom){
+                    roomNum = room.getRoomNum();
+                    if(room.addReservation(guestName, checkInDate, checkOutDate)) {
+                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, roomNum,
+                                room.getRoomPrice()));
+                        return true;
+                    }
+                }
+            }
         }
-       return false;
+        return false;
     }
 
     /**
@@ -288,20 +337,43 @@ public class Hotel {
      * @param num The number of rooms to add.
      * @return The boolean status after adding the desired number of rooms.
      */
-    public boolean addRoom(int num){
+    public boolean addRoom(int num, int roomType){
         int ctr = 0;
         int avail = 50 - rooms.size();
+        String type = "";
 
             // check if the inputted number is within 1 to 50
             if ((num > 0 && num < 50) && (num <= avail)) {
-                while (ctr < num) { // add the new rooms with their corresponding room numbers
-                    rooms.add(new Room(rooms.get(rooms.size() - 1).getRoomNum() + 1));
-                    ctr++;
-                }
-                System.out.println("Successfully added " + num + " rooms");
+                    if (roomType == 1) {
+                        while (ctr < num) {
+                            rooms.add(new StandardRoom(100 + numStandard() + 1));
+                            ctr++;
+                        }
+                        type = "Standard Rooms";
+                    }
+                    else if (roomType == 2) {
+                        while (ctr < num) {
+                            rooms.add(new DeluxeRoom(200 + numDeluxe() + 1));
+                            ctr++;
+                        }
+                        type = "Deluxe Rooms";
+                    }
+                    else if (roomType == 3) {
+                        while (ctr < num) {
+                            rooms.add(new ExecutiveRoom(300 + numExec() + 1));
+                            ctr++;
+                        }
+                        type = "Executive Rooms";
+                    }
+
+                System.out.println("\nSuccessfully added " + num + " " + type);
                 System.out.println("Total rooms is now " + rooms.size());
+                System.out.println("Standard Rooms: " + numStandard() );
+                System.out.println("Deluxe Rooms: " + numDeluxe());
+                System.out.println("Executive Rooms: " + numExec());
                 return true;
             }
+
             else
                 System.out.println("You must add at least one room and only " + avail + " rooms at most can be added!");
             return false;
@@ -351,22 +423,60 @@ public class Hotel {
         return 1;
     }
 
+    public int numStandard(){
+        int ctr = 0;
+        for(Room room : rooms){
+            if(room instanceof StandardRoom)
+                ctr++;
+        }
+        return ctr;
+    }
+
+    public int numDeluxe(){
+        int ctr = 0;
+        for(Room room : rooms){
+            if(room instanceof DeluxeRoom)
+                ctr++;
+        }
+        return ctr;
+    }
+
+    public int numExec(){
+        int ctr = 0;
+        for(Room room : rooms){
+            if(room instanceof ExecutiveRoom)
+                ctr++;
+        }
+        return ctr;
+    }
+
     /**
      * Sets the base price for the rooms in this hotel.
      * @param price The new price set for each room that is >100.0.
      */
     public void setBasePrice(float price){
         for (Room room : rooms) {
-            room.setRoomPrice(price);
+            if(room instanceof ExecutiveRoom)
+                room.setRoomPrice(price);
+            else if(room instanceof DeluxeRoom)
+                room.setRoomPrice(price);
+            else if(room instanceof StandardRoom)
+                room.setRoomPrice(price);
         }
     }
 
     /**
      * Gets the current base price of the selected room in this hotel.
-     * @param index The room number to check its base price.
      * @return The current base price of the room.
      */
-    public float getBasePrice(int index){
-        return rooms.get(index).getRoomPrice();
+    public float getBasePrice(){
+        float price = 0.0f;
+        for(Room room : rooms){
+            if(room instanceof StandardRoom){
+                price = room.getRoomPrice();
+                break;
+            }
+        }
+        return price;
     }
 }

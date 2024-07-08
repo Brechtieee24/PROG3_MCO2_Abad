@@ -93,7 +93,7 @@ public class Room {
             }
         }
         reservations.add(new Reservation(guestName, checkIn, checkOut, roomNum, this.roomPrice));
-        reservations.get(reservations.size()-1).setTotalPrice(roomPrice);
+        reservations.getLast().setTotalPrice(roomPrice);
         return true;
     }
 

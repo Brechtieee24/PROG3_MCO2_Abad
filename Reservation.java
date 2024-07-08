@@ -6,11 +6,11 @@
  * @version 1.0
  */
 public class Reservation {
-    private final String guestName; // Name of guest on reservation
-    private final int checkInDate; // Check-In date of reservation
-    private final int checkOutDate; // Check-out date of reservation
+    private String guestName; // Name of guest on reservation
+    private int checkInDate; // Check-In date of reservation
+    private int checkOutDate; // Check-out date of reservation
     private float totalPrice; // Total price of this reservation
-    private final int roomNum; // Room assigned to this reservation
+    private int roomNum; // Room assigned to this reservation
 
     /**
      * Constructor for Reservation.

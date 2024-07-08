@@ -14,6 +14,10 @@ import java.util.Scanner;
 public class ManageHotel {
     private ArrayList<Hotel> hotels; // Stores the hotels created
 
+    public void temphotel(Hotel hotel) {
+        this.hotels = new ArrayList<>();
+        hotels.add(hotel);
+    }
     /**
      * Constructor for ManageHotel
      */
@@ -37,7 +41,7 @@ public class ManageHotel {
      */
     public void createHotel(Scanner sc){
         String name, temp1, temp2;
-        int numOfRooms, equals;
+        int numStd, numDlx, numExe, numOfRooms = 1, equals;
 
         do {
             equals = 0;
@@ -57,15 +61,29 @@ public class ManageHotel {
             }
         } while (equals == -1);
 
-        System.out.print("Enter number of rooms: ");
         do{
-            numOfRooms = checkInt(sc);
-            if(numOfRooms <= 0 || numOfRooms > 50) {
-                System.out.println("You can only have 1 to 50 rooms");
-                System.out.print("Enter number of rooms: ");
-            }
-        } while (numOfRooms <= 0 || numOfRooms > 50);
-        hotels.add(new Hotel(name, numOfRooms));
+            if(numOfRooms > 50 || numOfRooms < 1 )
+                System.out.println("\nYou can only have 1 to 50 rooms.");
+
+            System.out.print("Enter number of Standard Rooms: ");
+            numStd = sc.nextInt();
+            System.out.print("Enter number of Deluxe Rooms: ");
+            numDlx = sc.nextInt();
+            System.out.print("Enter number of Executive Rooms: ");
+            numExe = sc.nextInt();
+            sc.nextLine();
+            numOfRooms = numDlx + numExe + numStd;
+        } while (numOfRooms > 50 || numOfRooms < 1);
+
+        System.out.println("\nHotel Name: " + name);
+        System.out.println("Standard Rooms: " + numStd);
+        System.out.println("Deluxe Rooms: " + numDlx);
+        System.out.println("Executive Rooms: " + numExe);
+        System.out.println("Total rooms: " + numOfRooms);
+        System.out.print("\nPress enter to continue...");
+        sc.nextLine();
+
+        hotels.add(new Hotel(name, numExe, numDlx, numStd));
         System.out.print("\033\143");
     }
 
@@ -222,16 +240,33 @@ public class ManageHotel {
      * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
     public void addHotelRooms(int index, Scanner sc){
-        int newNum, choice, old = hotels.get(index).getRooms().size();
+        int newNum, choice, roomType;
         boolean success = false;
+        String type = "";
 
-            do {
-                System.out.println("Add rooms at " + hotels.get(index).getHotelName());
+            while(!success) {
+                System.out.println("Adding rooms at " + hotels.get(index).getHotelName());
                 System.out.println("Current number of rooms: " + hotels.get(index).getRooms().size());
+                System.out.println("Standard Rooms: " + hotels.get(index).numStandard());
+                System.out.println("Deluxe Rooms: " + hotels.get(index).numDeluxe());
+                System.out.println("Executive Rooms: " + hotels.get(index).numExec());
+
                 System.out.print("Enter number of rooms to be added: ");
                 newNum = checkInt(sc);
+                System.out.println("\nSelect the type of Room:" +
+                                    "\n [1] Standard Room" + "\n [2] Deluxe Room" + "\n [3] Executive Room");
+                System.out.print("Enter choice: ");
+                roomType = checkInt(sc);
 
-                System.out.println("\nAre you sure you want to set the rooms from " + old + " to " + (newNum + old));
+                switch (roomType) {
+                    case 1:
+                        type = "Standard Room"; break;
+                    case 2:
+                        type = "Deluxe Room"; break;
+                    case 3:
+                        type = "Executive Room"; break;
+                }
+                System.out.println("\nAre you sure you want to add " + newNum + " " + type + "?");
                 System.out.println("[1] YES (This is irreversible!)");
                 System.out.println("[2] NO");
                 System.out.print("Enter your choice: ");
@@ -239,8 +274,8 @@ public class ManageHotel {
 
                 switch (choice) {
                     case 1:
-                        success = hotels.get(index).addRoom(newNum);
-                        System.out.print("\nPress enter to continue...");
+                        success = hotels.get(index).addRoom(newNum, roomType);
+                        System.out.print("Press enter to continue...");
                         sc.nextLine();
                         System.out.print("\033\143");
                         break;
@@ -252,7 +287,7 @@ public class ManageHotel {
                         break;
                 }
                 System.out.print("\033\143");
-            } while (!success);
+            }
     }
 
     /**
@@ -350,15 +385,16 @@ public class ManageHotel {
      * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
     public void setHotelBasePrice(int index, Scanner sc){
-        float price = 0.0f;
+        float price = 0.0f, dlxPrice = 0.0f, exePrice = 0.0f, stdPrice = 0.0f;
         boolean success = false;
         int choice;
+        ArrayList<Room> rooms = hotels.get(index).getRooms();
 
         if(hotels.get(index).isReservationEmpty()) {
             do {
                 System.out.print("\033\143");
                 System.out.println("\nChanging base price at " + hotels.get(index).getHotelName());
-                System.out.println("Current price per night: " + hotels.get(index).getBasePrice(0));
+                System.out.println("Current price per night: " + hotels.get(index).getBasePrice());
                 while (price < 100.0f) {
                     System.out.print("\nEnter new room base price: ");
                     if (sc.hasNextFloat()) {
@@ -370,7 +406,7 @@ public class ManageHotel {
                     }
                 }
 
-                System.out.println("\nAre you sure you want to change base price from " + hotels.get(index).getBasePrice(0)
+                System.out.println("\nAre you sure you want to change base price from " + hotels.get(index).getBasePrice()
                                     + " to " + price + "?");
                 System.out.println("[1] YES (This is irreversible!)");
                 System.out.println("[2] NO");
@@ -379,8 +415,21 @@ public class ManageHotel {
 
                 switch (choice) {
                     case 1:
-                        hotels.get(index).setBasePrice(price);
-                        System.out.println("Successfully changed base price to " + hotels.get(index).getBasePrice(0));
+                        hotels.get(index).setBasePrice(price); // Set base price
+                        for(Room room: rooms){ // Assign the new room rates for visibility
+                            if(room instanceof ExecutiveRoom)
+                                exePrice = room.getRoomPrice();
+                            else if (room instanceof DeluxeRoom)
+                                dlxPrice = room.getRoomPrice();
+                            else
+                                stdPrice = room.getRoomPrice();
+                        }
+
+                        System.out.println("Successfully changed base price to " + hotels.get(index).getBasePrice());
+                        System.out.println("Standard Room: " + stdPrice);
+                        System.out.println("Deluxe Room: " + dlxPrice);
+                        System.out.println("Executive Room: " + exePrice);
+
                         System.out.print("\nPress enter to continue...");
                         sc.nextLine();
                         System.out.print("\033\143");
@@ -417,8 +466,9 @@ public class ManageHotel {
      */
     public void setHotelReservation(int index, Scanner sc){
         String guestName;
-        int checkInDate, checkOutDate;
-        boolean success, checkOut;
+        int checkInDate, checkOutDate, roomOpt, choice;
+        boolean success = false, checkOut;
+        String roomType = "";
 
         System.out.print("\033\143");
         System.out.println("Making a reservation at " + hotels.get(index).getHotelName());
@@ -445,32 +495,61 @@ public class ManageHotel {
                 }
             } while (!checkOut);
 
-            success = hotels.get(index).setReservation(guestName, checkInDate, checkOutDate);
+            do{
+                System.out.println("\nSelect room type ");
+                System.out.println("[1] Standard Room");
+                System.out.println("[2] Deluxe Room");
+                System.out.println("[3] Executive Room");
+                System.out.print("Enter selection: ");
+                roomOpt = checkInt(sc);
+            } while (roomOpt < 1 || roomOpt > 3);
 
-            // Adding of reservation is successful
-            if (success) {
-                System.out.println("\nSuccessfully saved reservation!");
-                System.out.print("Press enter to continue...");
-                sc.nextLine();
-                System.out.print("\033\143");
+            switch (roomOpt) {
+                case 1: roomType = "Standard Room"; break;
+                case 2: roomType = "Deluxe Room"; break;
+                case 3: roomType = "Executive Room"; break;
             }
 
-            else {
-                System.out.println("\nNo available rooms on selected dates...\n");
-                int choice;
-                do {
-                    System.out.println("Do you want to set another reservation?");
-                    System.out.println("[1] Yes");
-                    System.out.println("[2] Go back to main menu");
-                    System.out.print("Enter your option: ");
-                    choice = checkInt(sc);
-                } while (choice != 1 && choice != 2);
+            do{
+                System.out.println("\nReview reservation details");
+                System.out.println("Guest name: "+guestName);
+                System.out.println("Check in date: "+checkInDate);
+                System.out.println("Check out date: "+checkOutDate);
+                System.out.println("Type of room: " + roomType);
+                System.out.println("\n[1] Continue Reservation");
+                System.out.println("[2] Cancel Reservation");
+                System.out.print("Enter your choice: ");
+                choice = checkInt(sc);
 
-                if (choice == 2) {
-                    System.out.print("\033\143");
+                if (choice == 1){ // Continue to setting the reservation
+                    success = hotels.get(index).setReservation(guestName, checkInDate, checkOutDate, roomOpt);
+                    if (success) {
+                        System.out.println("\nSuccessfully saved reservation!");
+                        System.out.print("Press enter to continue...");
+                        sc.nextLine();
+                        System.out.print("\033\143");
+                    }
+                    else {
+                        System.out.println("\nNo available rooms on selected dates...\n");
+                        do {
+                            System.out.println("Do you want to set another reservation?");
+                            System.out.println("[1] Yes");
+                            System.out.println("[2] Go back to main menu");
+                            System.out.print("Enter your option: ");
+                            choice = checkInt(sc);
+                        } while (choice != 1 && choice != 2);
+
+                        if (choice == 2) {
+                            System.out.print("\033\143");
+                            return;
+                        }
+                    }
+                }
+                else{
                     break;
                 }
-            }
+            } while (!success);
+            break;
         } while(!success);
     }
 
