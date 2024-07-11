@@ -3,8 +3,8 @@ import java.util.ArrayList;
 /**
  * Represents a room with its corresponding room number, price, and reservations.
  * @author Albrecht Gabriel Abad
- * @since June 2024
- * @version 1.0
+ * @since July 2024
+ * @version 2.0
  */
 public class Room {
     private int roomNum; // The room number of this room.
@@ -69,7 +69,7 @@ public class Room {
     }
 
     /**
-     * Adds a reservation.
+     * check if date is available
      * <p>
      *    Checks first if the reservation can be added by comparing the dates
      *    in the current reservations list then returns a boolean value.
@@ -78,12 +78,11 @@ public class Room {
      *      <li>TRUE: If reservation can be added.</li>
      *      <li>FALSE: If the selected dates are currently booked.</li>
      *    </ul>
-     * @param guestName The name of the guest to be added to the system.
      * @param checkIn The date of check-in.
      * @param checkOut The date of check-out.
      * @return The boolean value of the implementation.
      */
-    public boolean addReservation(String guestName, int checkIn, int checkOut){
+    public boolean isDateAvail(int checkIn, int checkOut){
         for(Reservation reservation: reservations){
             // check for existing reservation within the selected date
             if ((checkIn >= reservation.getCheckInDate() && checkIn < reservation.getCheckOutDate()) ||
@@ -92,8 +91,6 @@ public class Room {
                 return false;
             }
         }
-        reservations.add(new Reservation(guestName, checkIn, checkOut, roomNum, this.roomPrice));
-        reservations.getLast().setTotalPrice(roomPrice);
         return true;
     }
 
@@ -110,4 +107,10 @@ public class Room {
         return earnings;
     }
 
+    /**
+     * Add a reservation to the room
+     */
+    public void addReservation(Reservation reservation){
+        reservations.add(reservation);
+    }
 }

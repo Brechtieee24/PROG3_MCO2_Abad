@@ -3,8 +3,8 @@ import java.util.Scanner;
 /**
  * The main driver of this system where it serves as the interactive interface of this system.
  * @author Albrecht Gabriel Abad
- * @since June 2024
- * @version 1.0
+ * @since July 2024
+ * @version 2.0
  */
 public class Driver {
     /**
@@ -20,7 +20,7 @@ public class Driver {
        int main, manage, manageHotel, index, reserveChoice;
        ManageHotel mh = new ManageHotel();
        Scanner sc = new Scanner(System.in);
-        Hotel r = new Hotel("mmm", 2,2,2);
+        Hotel r = new Hotel("Test", 2,2,2);
         mh.temphotel(r);
        do{
            System.out.println("\n====================================");
@@ -82,11 +82,13 @@ public class Driver {
                            System.out.println("[4] ROOM AVAILABILITY");
                            System.out.println("[5] ROOM INFORMATION");
                            System.out.println("[6] UPDATE BASE PRICE");
-                           System.out.println("[7] CHECK RESERVATIONS");
-                           System.out.println("[8] REMOVE RESERVATION");
-                           System.out.println("[9] HIGH-LEVEL INFORMATION");
-                           System.out.println("[10] REMOVE HOTEL");
-                           System.out.println("[11] BACK");
+                           System.out.println("[7] MODIFY RATE");
+                           System.out.println("[8] VIEW RATE PER NIGHT");
+                           System.out.println("[9] CHECK RESERVATIONS");
+                           System.out.println("[10] REMOVE RESERVATION");
+                           System.out.println("[11] HIGH-LEVEL INFORMATION");
+                           System.out.println("[12] REMOVE HOTEL");
+                           System.out.println("[13] BACK");
                            System.out.print("\nPlease enter your choice: ");
                                manageHotel = mh.checkInt(sc);
                                switch (manageHotel) {
@@ -109,23 +111,29 @@ public class Driver {
                                        mh.setHotelBasePrice(index, sc);
                                        break;
                                    case 7:
-                                       mh.checkReservationInfo(index,sc);
+                                       mh.datePriceMod(index, sc);
                                        break;
                                    case 8:
-                                       mh.removeHotelReservation(index, sc);
+                                       mh.displayRate(index, sc);
                                        break;
                                    case 9:
-                                       mh.viewHighLevelHotel(index, sc);
+                                       mh.checkReservationInfo(index,sc);
                                        break;
                                    case 10:
-                                       manageHotel = mh.removeHotel(index, sc);
+                                       mh.removeHotelReservation(index, sc);
                                        break;
                                    case 11:
+                                       mh.viewHighLevelHotel(index, sc);
+                                       break;
+                                   case 12:
+                                       manageHotel = mh.removeHotel(index, sc);
+                                       break;
+                                   case 13:
                                        break;
                                    default:
                                        System.out.println("Invalid choice");
                                }
-                           } while (manageHotel != 11);
+                           } while (manageHotel != 13);
                        }
                        else{
                            System.out.println("\nNo hotels found!");
