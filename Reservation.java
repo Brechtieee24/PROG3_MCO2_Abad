@@ -1,9 +1,11 @@
+import java.util.ArrayList;
+
 /**
  * Represents a reservation with guest name, check-in date, check-out date,
  * total reservation price, and room assignment.
  * @author Albrecht Gabriel Abad
- * @since June 2024
- * @version 1.0
+ * @since July 2024
+ * @version 2.0
  */
 public class Reservation {
     private String guestName; // Name of guest on reservation
@@ -20,12 +22,18 @@ public class Reservation {
      * @param roomNum Room number assigned by the system.
      * @param price Current room price of the assigned room.
      */
-    public Reservation (String guestName, int checkInDate, int checkOutDate, int roomNum, float price){
+    public Reservation (String guestName, int checkInDate, int checkOutDate, int roomNum, float price, ArrayList<DateModifier> dates){
+       float total = 0.0f;
         this.guestName = guestName;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
-        this.totalPrice = (checkOutDate - checkInDate) * price;
         this.roomNum = roomNum;
+        // Compute for the total price
+        for (DateModifier date : dates){
+            if (date.getDay() >= checkInDate && date.getDay() < checkOutDate)
+                total += price * date.getPricePercent();
+        }
+        this.totalPrice = total;
     }
 
     /**
@@ -69,34 +77,20 @@ public class Reservation {
     }
 
     /**
-     * Calculates the total reservation price.
-     *<p>
-     * The reservation price is obtained by counting the number of days of stay
-     * by subtracting the check-in date to the check-out date. This is then
-     * multiplied to the current room rate of the hotel.
-     *</p>
-     * <p>
-     *     The room rate is obtained by passing the current base price for each room
-     *     in the 'Hotel': {@link Hotel}.
-     * </p>
-     * @param roomRate The room rate for each room in this system.
-     */
-    public void setTotalPrice(float roomRate){
-        int daysOfStay = checkOutDate - checkInDate;
-        this.totalPrice = daysOfStay * roomRate;
-    }
-
-    /**
      * Compiles the attributes of this class to a string to display the reservation details.
      * @return a string that will store the room reservation details to be displayed.
      */
     public String toString(){
-        return "\n[Room " + this.roomNum +"]\n" +
+        int lengthOfStay = checkOutDate - checkInDate;
+        float pricePerNight = getTotalPrice() / lengthOfStay;
+
+        return "\n[Room " + this.roomNum + "]\n" +
                 "Guest Name: " + getGuestName() + "\n" +
                 "Check-in Date: " + getCheckInDate() + "\n" +
                 "Check-out Date: " + getCheckOutDate() + "\n" +
-                "Length of Stay: " + (checkOutDate - checkInDate) + " days\n" +
-                "Price per night: " + (getTotalPrice()/((float)checkOutDate-checkInDate)) + "\n\n" +
-                "TOTAL PRICE: " + getTotalPrice() + "\n";
+                "Length of Stay: " + lengthOfStay + " days\n" +
+                "Price per night: " + String.format("%.2f", pricePerNight) + "\n\n" +
+                "TOTAL PRICE: " + String.format("%.2f", getTotalPrice() ) + "\n";
+
     }
 }

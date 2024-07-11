@@ -8,8 +8,8 @@ import java.util.Scanner;
  *     which can store its unique rooms, reservations, and information.
  * </p>
  * @author Albrecht Gabriel Abad
- * @since June 2024
- * @version 1.0
+ * @since July 2024
+ * @version 2.0
  */
 public class ManageHotel {
     private ArrayList<Hotel> hotels; // Stores the hotels created
@@ -426,9 +426,9 @@ public class ManageHotel {
                         }
 
                         System.out.println("Successfully changed base price to " + hotels.get(index).getBasePrice());
-                        System.out.println("Standard Room: " + stdPrice);
-                        System.out.println("Deluxe Room: " + dlxPrice);
-                        System.out.println("Executive Room: " + exePrice);
+                        System.out.println("Standard Room: " + String.format("%.2f", stdPrice));
+                        System.out.println("Deluxe Room: " + String.format("%.2f", dlxPrice));
+                        System.out.println("Executive Room: " + String.format("%.2f", exePrice));
 
                         System.out.print("\nPress enter to continue...");
                         sc.nextLine();
@@ -543,13 +543,11 @@ public class ManageHotel {
                             System.out.print("\033\143");
                             return;
                         }
+                        System.out.println();
+                        break;
                     }
                 }
-                else{
-                    break;
-                }
             } while (!success);
-            break;
         } while(!success);
     }
 
@@ -726,6 +724,58 @@ public class ManageHotel {
         System.out.print("Press enter to continue...");
         sc.nextLine();
 
+    }
+
+    /**
+     * Modify
+     * @param index
+     * @param sc
+     */
+    public void datePriceMod(int index, Scanner sc){
+        ArrayList<DateModifier> dateList = hotels.get(index).getDates();
+        int dateChoice;
+        float prevPct = 0.0f, newPct = 0.0f;
+
+        hotels.get(index).displayDayRate();
+        do {
+            System.out.print("\nEnter date to modify: ");
+            dateChoice = checkInt(sc);
+        } while (dateChoice < 1 || dateChoice > 31);
+
+        for(DateModifier list : dateList){
+            if (list.getDay() == dateChoice)
+                prevPct = list.getPricePercent();
+        }
+
+        System.out.print("\033\143");
+        System.out.println("Modifying day " + dateChoice);
+        System.out.println("Previous rate: " + prevPct);
+        do {
+            try {
+                System.out.print("\nEnter new rate without % symbol \n[e.g. 100% = 100, 50% = 50, 23.3% = 23.3]: ");
+                if (sc.hasNextFloat()) {
+                    newPct = sc.nextFloat();
+                } else {
+                    System.out.println("Invalid input. Enter a valid float value.");
+                    sc.nextLine();
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR! Enter a float value");
+                sc.nextLine();
+            }
+        } while (newPct <= 0.0f);
+        hotels.get(index).modifyDate(dateChoice, newPct/100);
+    }
+
+    /**
+     * List them
+     * @param index
+     * @param sc
+     */
+    public void displayRate(int index, Scanner sc){
+        hotels.get(index).displayDayRate();
+        System.out.print("\nPress enter to continue...");
+        sc.nextLine();
     }
 
 }

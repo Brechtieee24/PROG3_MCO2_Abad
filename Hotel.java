@@ -5,13 +5,14 @@ import java.util.Scanner;
  * This class represents a Hotel with that can store values of its respective rooms
  * and reservations.
  * @author Albrecht Gabriel Abad
- * @since June 2024
- * @version 1.0
+ * @since July 2024
+ * @version 2.0
  */
 public class Hotel {
     private String hotelName; // The name of this Hotel
     private ArrayList<Reservation> reservations; // The reservations list of this hotel
     private ArrayList<Room> rooms; // The rooms in this hotel
+    private ArrayList<DateModifier> dates;
 
     /***
      * Constructor for Hotel class
@@ -25,6 +26,7 @@ public class Hotel {
         this.hotelName = hotelName;
         this.reservations = new ArrayList<>();
         this.rooms = new ArrayList<>();
+        this.dates = new ArrayList<>();
 
         for(int i = 1; i <= numExe; i++)
             rooms.add(new ExecutiveRoom(300 + i));
@@ -34,6 +36,9 @@ public class Hotel {
 
         for(int i = 1; i <= numStd; i++)
             rooms.add(new StandardRoom(100 + i));
+
+        for(int i = 1; i <= 31; i++) // Set the dates by default to 100% rate
+            dates.add(new DateModifier(i, 1.0f));
     }
 
     /***
@@ -88,6 +93,13 @@ public class Hotel {
      */
     public ArrayList<Room> getRooms() {
         return rooms;
+    }
+
+    /**
+     * Returns the dates and its surcharge
+     */
+    public ArrayList<DateModifier> getDates(){
+        return dates;
     }
 
     /***
@@ -168,15 +180,14 @@ public class Hotel {
      * @return The boolean value of the status after adding a reservation.
      */
     public boolean setReservation(String guestName, int checkInDate, int checkOutDate, int roomType){
-        int roomNum;
 
         if(roomType == 1){ // Room is a standard room
             for(Room room : rooms){
                 if(room instanceof StandardRoom){
-                    roomNum = room.getRoomNum();
-                    if(room.addReservation(guestName, checkInDate, checkOutDate)) {
-                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, roomNum,
-                                room.getRoomPrice()));
+                    if(room.isDateAvail(checkInDate, checkOutDate)) {
+                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, room.getRoomNum(),
+                                room.getRoomPrice(), dates));
+                        room.addReservation(reservations.getLast());
                         return true;
                     }
                 }
@@ -184,10 +195,10 @@ public class Hotel {
         } else if (roomType == 2) { // Room is a deluxe room
             for(Room room : rooms){
                 if(room instanceof DeluxeRoom){
-                    roomNum = room.getRoomNum();
-                    if(room.addReservation(guestName, checkInDate, checkOutDate)) {
-                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, roomNum,
-                                room.getRoomPrice()));
+                    if(room.isDateAvail(checkInDate, checkOutDate)) {
+                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, room.getRoomNum(),
+                                room.getRoomPrice(), dates));
+                        room.addReservation(reservations.getLast());
                         return true;
                     }
                 }
@@ -195,10 +206,10 @@ public class Hotel {
         } else if (roomType == 3) { // Room is an executive room
             for(Room room : rooms){
                 if(room instanceof ExecutiveRoom){
-                    roomNum = room.getRoomNum();
-                    if(room.addReservation(guestName, checkInDate, checkOutDate)) {
-                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, roomNum,
-                                room.getRoomPrice()));
+                    if(room.isDateAvail(checkInDate, checkOutDate)) {
+                        reservations.add(new Reservation(guestName, checkInDate, checkOutDate, room.getRoomNum(),
+                                room.getRoomPrice(), dates));
+                        room.addReservation(reservations.getLast());
                         return true;
                     }
                 }
@@ -423,6 +434,10 @@ public class Hotel {
         return 1;
     }
 
+    /**
+     * Number of std rooms
+     * @return ==
+     */
     public int numStandard(){
         int ctr = 0;
         for(Room room : rooms){
@@ -432,6 +447,10 @@ public class Hotel {
         return ctr;
     }
 
+    /**
+     * Deluxe rooms
+     * @return ==
+     */
     public int numDeluxe(){
         int ctr = 0;
         for(Room room : rooms){
@@ -441,6 +460,10 @@ public class Hotel {
         return ctr;
     }
 
+    /**
+     * Executive rooms
+     * @return ==
+     */
     public int numExec(){
         int ctr = 0;
         for(Room room : rooms){
@@ -479,4 +502,56 @@ public class Hotel {
         }
         return price;
     }
+
+    /**
+     * Discount for reservations
+     */
+    public int checkVoucher(String voucher){
+        return switch (voucher) {
+            case "I_WORK_HERE" -> 1;
+            case "STAY4_GET1" -> 2;
+            case "PAYDAY" -> 3;
+            default -> -1;
+        };
+    }
+
+    /**
+     * Computes for the reservation price
+     */
+    public float reservationTotal(int checkIn, int checkOut, int voucher, float roomPrice){
+        if (voucher == -1){
+            return (checkOut - checkIn) * roomPrice;
+        } else if (voucher == 1) {
+            return -1.0f;
+        }
+        return 0.0f;
+    }
+
+    /**
+     * Modifies the date rate
+     */
+    public void modifyDate(int setDate, float percent){
+        for(DateModifier day : dates){
+            if(setDate == day.getDay()){
+                day.setPricePercent(percent);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Display rates for each day
+     */
+
+    public void displayDayRate(){
+        System.out.println("Day    Rate");
+        for (DateModifier list : dates){
+            System.out.println(String.format("%02d", list.getDay()) + " || " +
+                    String.format("%.2f", list.getPricePercent()*100) +"%");
+        }
+    }
+
+
+
+
 }

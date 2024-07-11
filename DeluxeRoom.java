@@ -6,7 +6,7 @@ public class DeluxeRoom extends Room{
 
     @Override
     public void setRoomPrice(float roomPrice) {
-        roomPrice = roomPrice + (roomPrice * 0.2f);
+        roomPrice = roomPrice * 1.2f;
         super.setRoomPrice(roomPrice);
     }
 }
