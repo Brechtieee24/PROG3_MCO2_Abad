@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /**
  * Represents a reservation with guest name, check-in date, check-out date,
  * total reservation price, and room assignment.
@@ -20,20 +18,14 @@ public class Reservation {
      * @param checkInDate Check-in date in "DD" format.
      * @param checkOutDate Check-out date in "DD" format.
      * @param roomNum Room number assigned by the system.
-     * @param price Current room price of the assigned room.
+     * @param price Total price of this reservation.
      */
-    public Reservation (String guestName, int checkInDate, int checkOutDate, int roomNum, float price, ArrayList<DateModifier> dates){
-       float total = 0.0f;
+    public Reservation (String guestName, int checkInDate, int checkOutDate, int roomNum, float price){
         this.guestName = guestName;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.roomNum = roomNum;
-        // Compute for the total price
-        for (DateModifier date : dates){
-            if (date.getDay() >= checkInDate && date.getDay() < checkOutDate)
-                total += price * date.getPricePercent();
-        }
-        this.totalPrice = total;
+        this.totalPrice = price;
     }
 
     /**

@@ -20,8 +20,12 @@ public class Driver {
        int main, manage, manageHotel, index, reserveChoice;
        ManageHotel mh = new ManageHotel();
        Scanner sc = new Scanner(System.in);
-        Hotel r = new Hotel("Test", 2,2,2);
-        mh.temphotel(r);
+
+        Hotel one = new Hotel("One", 1, 1, 1);
+        Hotel two = new Hotel("Two", 2, 2, 2);
+        mh.temphotel(one);
+        mh.temphotel(two);
+
        do{
            System.out.println("\n====================================");
            System.out.println("===== Welcome to MyHotelSystem =====");

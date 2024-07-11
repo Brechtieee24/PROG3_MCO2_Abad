@@ -15,7 +15,6 @@ public class ManageHotel {
     private ArrayList<Hotel> hotels; // Stores the hotels created
 
     public void temphotel(Hotel hotel) {
-        this.hotels = new ArrayList<>();
         hotels.add(hotel);
     }
     /**
@@ -246,10 +245,7 @@ public class ManageHotel {
 
             while(!success) {
                 System.out.println("Adding rooms at " + hotels.get(index).getHotelName());
-                System.out.println("Current number of rooms: " + hotels.get(index).getRooms().size());
-                System.out.println("Standard Rooms: " + hotels.get(index).numStandard());
-                System.out.println("Deluxe Rooms: " + hotels.get(index).numDeluxe());
-                System.out.println("Executive Rooms: " + hotels.get(index).numExec());
+                displayRoomCount(index);
 
                 System.out.print("Enter number of rooms to be added: ");
                 newNum = checkInt(sc);
@@ -258,14 +254,12 @@ public class ManageHotel {
                 System.out.print("Enter choice: ");
                 roomType = checkInt(sc);
 
-                switch (roomType) {
-                    case 1:
-                        type = "Standard Room"; break;
-                    case 2:
-                        type = "Deluxe Room"; break;
-                    case 3:
-                        type = "Executive Room"; break;
-                }
+                type = switch (roomType) {
+                    case 1 -> "Standard Room";
+                    case 2 -> "Deluxe Room";
+                    case 3 -> "Executive Room";
+                    default -> type;
+                };
                 System.out.println("\nAre you sure you want to add " + newNum + " " + type + "?");
                 System.out.println("[1] YES (This is irreversible!)");
                 System.out.println("[2] NO");
@@ -324,7 +318,7 @@ public class ManageHotel {
             do {
                 System.out.print("\033\143");
                 System.out.println("\nRemove rooms at " + hotels.get(index).getHotelName());
-                System.out.println("Current number of rooms: " + hotels.get(index).getRooms().size());
+                displayRoomCount(index);
                 System.out.print("Enter room to be removed: ");
                 remove = checkInt(sc);
 
@@ -370,6 +364,18 @@ public class ManageHotel {
                 }
             } while (!success);
         }
+    }
+
+    /**
+     * Display room count
+     * @param index
+     */
+
+    public void displayRoomCount(int index) {
+        System.out.println("Current number of rooms: " + hotels.get(index).getRooms().size());
+        System.out.println("Standard Rooms: " + hotels.get(index).numStandard() + " [101 to " + (100+ hotels.get(index).numStandard()) + "]");
+        System.out.println("Deluxe Rooms: " + hotels.get(index).numDeluxe() + " [201 to " + (200+ hotels.get(index).numDeluxe()) + "]");
+        System.out.println("Executive Rooms: " + hotels.get(index).numExec() + " [301 to " + (300+ hotels.get(index).numExec()) + "]");
     }
 
 
@@ -466,9 +472,10 @@ public class ManageHotel {
      */
     public void setHotelReservation(int index, Scanner sc){
         String guestName;
-        int checkInDate, checkOutDate, roomOpt, choice;
+        int checkInDate, checkOutDate, roomOpt, choice, vouchChoice, vouchType;
         boolean success = false, checkOut;
-        String roomType = "";
+        String roomType, voucher = "";
+        float totalPrice;
 
         System.out.print("\033\143");
         System.out.println("Making a reservation at " + hotels.get(index).getHotelName());
@@ -504,11 +511,43 @@ public class ManageHotel {
                 roomOpt = checkInt(sc);
             } while (roomOpt < 1 || roomOpt > 3);
 
-            switch (roomOpt) {
-                case 1: roomType = "Standard Room"; break;
-                case 2: roomType = "Deluxe Room"; break;
-                case 3: roomType = "Executive Room"; break;
-            }
+            roomType = switch (roomOpt) {
+                case 1 -> "Standard Room";
+                case 2 -> "Deluxe Room";
+                case 3 -> "Executive Room";
+                default -> throw new IllegalStateException("Unexpected value: " + roomOpt);
+            };
+
+            do{ // ASK FOR VOUCHER
+                System.out.println("\nDo you have a voucher?");
+                System.out.println("[1] Yes");
+                System.out.println("[2] No");
+                System.out.print("Enter your option: ");
+                vouchChoice = checkInt(sc);
+                do {
+                    if (vouchChoice == 1) {
+                        System.out.print("Voucher Code: ");
+                        voucher = sc.nextLine(); // CHECK VOUCHER
+                        if (hotels.get(index).checkVoucher(voucher, checkInDate, checkOutDate) != 0) {
+                            vouchType = hotels.get(index).checkVoucher(voucher, checkInDate, checkOutDate);
+                            totalPrice = hotels.get(index).computeTotal(vouchType, checkInDate, checkOutDate, roomOpt);
+                            vouchChoice = 2;
+                        }
+                        else { // VOUCHER INVALID
+                            System.out.println("\nVoucher cannot be applied!");
+                            System.out.println("Do you want to try another voucher?");
+                            System.out.println("[1] Yes");
+                            System.out.println("[2] No");
+                            System.out.print("Enter your option: ");
+                            vouchChoice = checkInt(sc);
+                            totalPrice = hotels.get(index).computeTotal(0, checkInDate, checkOutDate, roomOpt);
+                        }
+                    }
+                    else
+                        totalPrice = hotels.get(index).computeTotal(0, checkInDate, checkOutDate, roomOpt);
+
+                } while (vouchChoice == 1);
+            } while (vouchChoice != 2);
 
             do{
                 System.out.println("\nReview reservation details");
@@ -516,19 +555,23 @@ public class ManageHotel {
                 System.out.println("Check in date: "+checkInDate);
                 System.out.println("Check out date: "+checkOutDate);
                 System.out.println("Type of room: " + roomType);
+                System.out.println("Voucher Applied: " + voucher);
+                System.out.println("TOTAL PRICE: " + String.format("%.2f", totalPrice));
                 System.out.println("\n[1] Continue Reservation");
                 System.out.println("[2] Cancel Reservation");
                 System.out.print("Enter your choice: ");
                 choice = checkInt(sc);
 
                 if (choice == 1){ // Continue to setting the reservation
-                    success = hotels.get(index).setReservation(guestName, checkInDate, checkOutDate, roomOpt);
+                    success = hotels.get(index).setReservation(guestName, checkInDate, checkOutDate, roomOpt, totalPrice);
                     if (success) {
                         System.out.println("\nSuccessfully saved reservation!");
                         System.out.print("Press enter to continue...");
                         sc.nextLine();
+                        choice = 2; // To terminate the loop
                         System.out.print("\033\143");
                     }
+
                     else {
                         System.out.println("\nNo available rooms on selected dates...\n");
                         do {
@@ -547,7 +590,11 @@ public class ManageHotel {
                         break;
                     }
                 }
-            } while (!success);
+                else if (choice == 2) {
+                    success = true; // To terminate the outermost loop
+                    System.out.print("\033\143");
+                }
+            } while (choice != 2);
         } while(!success);
     }
 
@@ -600,7 +647,7 @@ public class ManageHotel {
                     if (choice == 1) {
                         hotels.remove(index);
                         System.out.println("\nSuccessfully removed " + temp);
-                        return 11;
+                        return 13;
                     }
 
                 } while (choice < 1 || choice > 2);
@@ -733,7 +780,7 @@ public class ManageHotel {
      */
     public void datePriceMod(int index, Scanner sc){
         ArrayList<DateModifier> dateList = hotels.get(index).getDates();
-        int dateChoice;
+        int dateChoice, option;
         float prevPct = 0.0f, newPct = 0.0f;
 
         hotels.get(index).displayDayRate();
@@ -749,10 +796,11 @@ public class ManageHotel {
 
         System.out.print("\033\143");
         System.out.println("Modifying day " + dateChoice);
-        System.out.println("Previous rate: " + prevPct);
+        System.out.println("Previous rate: " + (prevPct*100) +"%");
         do {
             try {
-                System.out.print("\nEnter new rate without % symbol \n[e.g. 100% = 100, 50% = 50, 23.3% = 23.3]: ");
+                System.out.println("\nYou can only modify the rate from 50% to 150%");
+                System.out.print("Enter new rate without % symbol \n[e.g. 100% = 100, 50% = 50, 23.3% = 23.3]: ");
                 if (sc.hasNextFloat()) {
                     newPct = sc.nextFloat();
                 } else {
@@ -763,8 +811,25 @@ public class ManageHotel {
                 System.out.println("ERROR! Enter a float value");
                 sc.nextLine();
             }
-        } while (newPct <= 0.0f);
-        hotels.get(index).modifyDate(dateChoice, newPct/100);
+        } while (newPct < 50.0f || newPct > 150.0f);
+
+
+        do{
+            System.out.println("\nModifying rate on day " + dateChoice);
+            System.out.println("from " + (prevPct*100) + "% to " + newPct +"%");
+            System.out.println("[1] CONTINUE (This is irreversible!)");
+            System.out.println("[2] CANCEL MODIFICATION");
+            System.out.print("Enter your choice: ");
+            option = checkInt(sc);
+
+            if(option == 1) {
+                hotels.get(index).modifyDate(dateChoice, newPct / 100);
+                System.out.println("Successfully changed rate on Day " + dateChoice + " from " + (prevPct*100) + "% to " + newPct +"%");
+                System.out.print("Press enter to continue...");
+                sc.nextLine();
+                option = 2;
+            }
+        } while (option != 2);
     }
 
     /**

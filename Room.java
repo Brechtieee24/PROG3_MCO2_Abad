@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 /**
- * Represents a room with its corresponding room number, price, and reservations.
+ * Parent class of the various types of rooms. This contains functions that simulates a hotel room.
  * @author Albrecht Gabriel Abad
  * @since July 2024
  * @version 2.0

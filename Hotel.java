@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * This class represents a Hotel with that can store values of its respective rooms
+ * This class represents a Hotel that can store the instances of its respective rooms
  * and reservations.
  * @author Albrecht Gabriel Abad
  * @since July 2024
@@ -12,7 +12,7 @@ public class Hotel {
     private String hotelName; // The name of this Hotel
     private ArrayList<Reservation> reservations; // The reservations list of this hotel
     private ArrayList<Room> rooms; // The rooms in this hotel
-    private ArrayList<DateModifier> dates;
+    private ArrayList<DateModifier> dates; // The dates and their respective rates
 
     /***
      * Constructor for Hotel class
@@ -21,6 +21,9 @@ public class Hotel {
      *     passed from 'ManageHotel' {@link ManageHotel}.
      *</p>
      * @param hotelName Hotel name assigned to this class.
+     * @param numExe The number of Executive rooms to be instantiated.
+     * @param numDlx The number of Deluxe rooms to be instantiated.
+     * @param numStd The number of Standard rooms to be instantiated.
      */
     public Hotel(String hotelName, int numExe, int numDlx, int numStd){
         this.hotelName = hotelName;
@@ -109,22 +112,21 @@ public class Hotel {
     public void dispHighInfo(){
         float earnings = getHotelEarnings();
         System.out.println("\nHotel Name: " + hotelName);
-        System.out.println("Earnings for the month: " + earnings);
+        System.out.println("Earnings for the month: " + String.format("%.2f", earnings));
         System.out.println("\nTotal number of rooms: " + rooms.size());
-        if (numStandard() > 0) {
+        if (numStandard() > 0) { // Displays the number of standard rooms
             System.out.print("Standard Rooms: " + numStandard());
             System.out.println(" [" + 101 + " to " + (100 + numStandard()) + "]");
         }
-        if(numDeluxe() > 0) {
+        if(numDeluxe() > 0) { // Displays the number of deluxe rooms
             System.out.print("Deluxe Rooms: " + numDeluxe());
             System.out.println(" [" + 201 + " to " + (200 + numDeluxe()) + "]");
         }
-        if(numExec() > 0) {
+        if(numExec() > 0) { // Displays the number of executive rooms
             System.out.print("Executive Rooms: " + numExec());
             System.out.println(" [" + 301 + " to " + (300 + numExec()) + "]");
         }
     }
-
 
     /**
      * Displays the room information of the selected room in this hotel
@@ -174,19 +176,29 @@ public class Hotel {
      *     <li> TRUE: If adding of reservation is successful. </li>
      *     <li> FALSE: If there are no rooms available on the selected dates.</li>
      * </ul>
+     * <p>
+     *     Room type are assigned as follows:
+     * </p>
+     * <ul>
+     *     <li> 1: Standard Room </li>
+     *     <li> 2: Deluxe Room </li>
+     *     <li> 3: Executive Room </li>
+     * </ul>
      * @param guestName Guest name.
      * @param checkInDate Check-in date in "DD" format.
      * @param checkOutDate Check-out date in "DD" format.
+     * @param roomType The room type of this reservation.
+     * @param totalPrice Total price of this reservation.
      * @return The boolean value of the status after adding a reservation.
      */
-    public boolean setReservation(String guestName, int checkInDate, int checkOutDate, int roomType){
+    public boolean setReservation(String guestName, int checkInDate, int checkOutDate, int roomType, float totalPrice){
 
         if(roomType == 1){ // Room is a standard room
             for(Room room : rooms){
                 if(room instanceof StandardRoom){
                     if(room.isDateAvail(checkInDate, checkOutDate)) {
                         reservations.add(new Reservation(guestName, checkInDate, checkOutDate, room.getRoomNum(),
-                                room.getRoomPrice(), dates));
+                                totalPrice));
                         room.addReservation(reservations.getLast());
                         return true;
                     }
@@ -197,7 +209,7 @@ public class Hotel {
                 if(room instanceof DeluxeRoom){
                     if(room.isDateAvail(checkInDate, checkOutDate)) {
                         reservations.add(new Reservation(guestName, checkInDate, checkOutDate, room.getRoomNum(),
-                                room.getRoomPrice(), dates));
+                                totalPrice));
                         room.addReservation(reservations.getLast());
                         return true;
                     }
@@ -208,7 +220,7 @@ public class Hotel {
                 if(room instanceof ExecutiveRoom){
                     if(room.isDateAvail(checkInDate, checkOutDate)) {
                         reservations.add(new Reservation(guestName, checkInDate, checkOutDate, room.getRoomNum(),
-                                room.getRoomPrice(), dates));
+                                totalPrice));
                         room.addReservation(reservations.getLast());
                         return true;
                     }
@@ -345,7 +357,16 @@ public class Hotel {
      *     <li>TRUE: If adding of rooms is successful.</li>
      *     <li>FALSE: If desired number of rooms cannot be added.</li>
      * </ul>
+     * <p>
+     *     Room type are assigned as follows:
+     * </p>
+     * <ol>
+     *     <li> Standard Room </li>
+     *     <li> Deluxe Room </li>
+     *     <li> Executive Room </li>
+     * </ol>
      * @param num The number of rooms to add.
+     * @param roomType The room type of the desired room to be added
      * @return The boolean status after adding the desired number of rooms.
      */
     public boolean addRoom(int num, int roomType){
@@ -435,8 +456,8 @@ public class Hotel {
     }
 
     /**
-     * Number of std rooms
-     * @return ==
+     * Computes for the number of standard rooms.
+     * @return The total number of standard rooms.
      */
     public int numStandard(){
         int ctr = 0;
@@ -448,8 +469,8 @@ public class Hotel {
     }
 
     /**
-     * Deluxe rooms
-     * @return ==
+     * Computes for the number of deluxe rooms.
+     * @return The total number of deluxe rooms.
      */
     public int numDeluxe(){
         int ctr = 0;
@@ -461,8 +482,8 @@ public class Hotel {
     }
 
     /**
-     * Executive rooms
-     * @return ==
+     * Computes for the number of executive rooms.
+     * @return The total number of executive rooms.
      */
     public int numExec(){
         int ctr = 0;
@@ -489,8 +510,8 @@ public class Hotel {
     }
 
     /**
-     * Gets the current base price of the selected room in this hotel.
-     * @return The current base price of the room.
+     * Gets the current base price of this hotel.
+     * @return The current base price by getting the price of a standard room.
      */
     public float getBasePrice(){
         float price = 0.0f;
@@ -504,31 +525,94 @@ public class Hotel {
     }
 
     /**
-     * Discount for reservations
+     * Checks if the voucher applied is valid
+     * <p>
+     *     This method will return the following values after checking the voucher
+     * </p>
+     * <ul>
+     *     <li> 0 if voucher is invalid </li>
+     *     <li> 1 if it matches "I_WORK_HERE" </li>
+     *     <li> 2 if it matches "STAY4_GET1" </li>
+     *     <li> 3 if it matches "PAYDAY" </li>
+     * </ul>
      */
-    public int checkVoucher(String voucher){
-        return switch (voucher) {
-            case "I_WORK_HERE" -> 1;
-            case "STAY4_GET1" -> 2;
-            case "PAYDAY" -> 3;
-            default -> -1;
-        };
-    }
+    public int checkVoucher(String voucher, int checkIn, int checkOut){
 
-    /**
-     * Computes for the reservation price
-     */
-    public float reservationTotal(int checkIn, int checkOut, int voucher, float roomPrice){
-        if (voucher == -1){
-            return (checkOut - checkIn) * roomPrice;
-        } else if (voucher == 1) {
-            return -1.0f;
+        // Flat 10% discount to the final price of a reservation
+        if(voucher.equals("I_WORK_HERE")){
+            return 1;
         }
-        return 0.0f;
+
+        /*
+            If the reservation has 5 days or more, the first day of the reservation is given
+        for free
+         */
+        else if (voucher.equals("STAY4_GET1") && (checkOut - checkIn >= 5)) {
+            return 2;
+        }
+
+        /*
+            This gives a 7% discount to the overall price if reservation covers (but not as
+        checkout) either day 15 or 30.
+         */
+        else if (voucher.equals("PAYDAY") && ( (15 >= checkIn && 15 < checkOut) || (30 >= checkIn && 30 < checkOut) )) {
+            return 3;
+        }
+        return 0;
     }
 
     /**
-     * Modifies the date rate
+     * Computes for the total reservation price
+     * @param voucher The voucher type to be applied.
+     * @param checkIn Check-in date of the reservation.
+     * @param checkOut Check-out date of the reservation.
+     * @param roomType Room type selected by the user.
+     * @return The computed total price of the reservation.
+     */
+    public float computeTotal(int voucher, int checkIn, int checkOut, int roomType){
+        float price = 0.0f, roomRate = 0.0f;
+
+        roomRate = switch (roomType) {
+            case 1 -> getBasePrice();
+            case 2 -> getBasePrice() * 1.2f;
+            case 3 -> getBasePrice() * 1.35f;
+            default -> roomRate;
+        };
+
+        if(voucher == 1){ // I_WORK_HERE
+            for (DateModifier date : dates){
+                if (date.getDay() >= checkIn && date.getDay() < checkOut)
+                    price += roomRate * date.getPricePercent();
+            }
+            return price * 0.9f; // Multiplied to 90% (100% - 10%)
+        }
+        else if (voucher == 2){ // STAY4_GET1
+            for (DateModifier date : dates){ // Exclusive statement because 1st day is free
+                if (date.getDay() > checkIn && date.getDay() < checkOut)
+                    price += roomRate * date.getPricePercent();
+            }
+            return price;
+        }
+        else if (voucher == 3){ // PAYDAY
+            for (DateModifier date : dates){
+                if (date.getDay() >= checkIn && date.getDay() < checkOut)
+                    price += roomRate * date.getPricePercent();
+            }
+            return price * 0.93f; // 100 - 93 = 7% off
+        }
+        else{ // No voucher applied
+            for (DateModifier date : dates){
+                if (date.getDay() >= checkIn && date.getDay() < checkOut)
+                    price += roomRate * date.getPricePercent();
+            }
+            return price;
+        }
+    }
+
+    /**
+     * Modifies the rate for the selected date.
+     * @param setDate The date to be modified.
+     * @param percent The new rate to be applied on the selected day.
      */
     public void modifyDate(int setDate, float percent){
         for(DateModifier day : dates){
@@ -540,18 +624,17 @@ public class Hotel {
     }
 
     /**
-     * Display rates for each day
+     * Displays rate for each day
      */
 
     public void displayDayRate(){
         System.out.println("Day    Rate");
         for (DateModifier list : dates){
             System.out.println(String.format("%02d", list.getDay()) + " || " +
-                    String.format("%.2f", list.getPricePercent()*100) +"%");
+                    String.format("%.2f", list.getPricePercent()*100) +"%" +
+                    "  == Std [" + String.format("%.2f", (getBasePrice() * list.getPricePercent())) + "]" +
+                    "  Dlx [" + String.format("%.2f", (getBasePrice() * 1.2f * list.getPricePercent())) + "]" +
+                    "  Exe [" + String.format("%.2f", (getBasePrice() * 1.35f * list.getPricePercent())) + "]");
         }
     }
-
-
-
-
 }
