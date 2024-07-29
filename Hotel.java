@@ -14,7 +14,7 @@ public class Hotel {
     private ArrayList<Room> rooms; // The rooms in this hotel
     private ArrayList<DateModifier> dates; // The dates and their respective rates
 
-    /***
+    /**
      * Constructor for Hotel class
      *<p>
      *     The hotel name and number of rooms are valid values
@@ -44,7 +44,7 @@ public class Hotel {
             dates.add(new DateModifier(i, 1.0f));
     }
 
-    /***
+    /**
      * Sets the hotel name.
      * <p>
      *     This method is called when a change of hotel name is
@@ -56,16 +56,15 @@ public class Hotel {
         this.hotelName = hotelName;
     }
 
-    /***
+    /**
      * Gets the hotel name of this Hotel.
-     *
      * @return The current hotel name assigned.
      */
     public String getHotelName(){
         return hotelName;
     }
 
-    /***
+    /**
      * Gets the earnings of this Hotel.
      * <p>
      *     The earnings is calculated by adding the total earnings of
@@ -80,9 +79,8 @@ public class Hotel {
         return earnings;
     }
 
-    /***
+    /**
      * Returns the reservations list in this Hotel.
-     *
      * @return The reservations.
      */
     public ArrayList<Reservation> getReservations(){
@@ -91,7 +89,6 @@ public class Hotel {
 
     /**
      * Gets the rooms and the room details of this Hotel.
-     *
      * @return The list of 'Room':{@link Room} objects with its corresponding attributes.
      */
     public ArrayList<Room> getRooms() {
@@ -105,7 +102,7 @@ public class Hotel {
         return dates;
     }
 
-    /***
+    /**
      * Displays high level information of this hotel which includes
      * the hotel name, total earnings, and number of rooms.
      */
@@ -164,6 +161,46 @@ public class Hotel {
 
         System.out.println("Total days available: " + daysAvailable);
         System.out.println("Total days with booking: " + daysOccupied);
+    }
+
+    /**
+     * Checks if the room number inputted is a valid room number.
+     * @param roomNum The room number to search.
+     * @return The boolean value of the search result.
+     */
+    public boolean isRoomFound(int roomNum){
+        for(Room room : rooms) {
+            if(roomNum == room.getRoomNum())
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks the number of days that a room is occupied.
+     * @param roomNum The room to be checked.
+     * @return The number of days occupied.
+     */
+    public int daysOccupied(int roomNum){
+        int daysOccupied = 0;
+        for(Reservation reservation : reservations){
+            if(reservation.getRoomNum() == roomNum)
+                daysOccupied += reservation.getCheckOutDate() - reservation.getCheckInDate();
+        }
+        return daysOccupied;
+    }
+
+    /**
+     * Getter for the room price.
+     * @param roomNum The room number to check.
+     * @return The room price.
+     */
+    public float getRoomPrice(int roomNum){
+        for(Room room: rooms){
+            if(room.getRoomNum() == roomNum)
+                return room.getRoomPrice();
+        }
+        return 0.0f;
     }
 
     /**
@@ -244,7 +281,7 @@ public class Hotel {
     public void removeReservation(Scanner sc){
         int ctr = -1, choice;
         boolean success = false;
-        ManageHotel intCheck = new ManageHotel();
+        ManageHotel intCheck = new ManageHotel(sc);
 
         if(!isReservationEmpty() && dispRoomReservation() == 1) {
             do {
@@ -260,7 +297,7 @@ public class Hotel {
                     System.out.println("[1] YES (This is irreversible!)");
                     System.out.println("[2] NO");
                     System.out.print("Enter your choice: ");
-                    choice = intCheck.checkInt(sc);
+                    choice = intCheck.checkInt();
 
                     switch (choice) {
                         case 1:
@@ -298,6 +335,31 @@ public class Hotel {
     }
 
     /**
+     * Removes a reservation through GUI input.
+     * @param index The reservation index to be removed.
+     */
+    public void removeReservationGui(int index){
+        int ctr, resSize, roomDate;
+        int roomNum = reservations.get(index).getRoomNum();
+        int checkIn = reservations.get(index).getCheckInDate();
+        for(Room room: rooms){
+            if (roomNum == room.getRoomNum()) {
+                resSize = room.getReservations().size();
+                ctr = 0; // Set to 0 as a start of the reservation list index.
+                while (ctr < resSize) {
+                    roomDate = room.getReservations().get(ctr).getCheckInDate();
+                    if (roomDate == checkIn) { // return the index once the room date matches the check in date
+                        room.removeReservation(ctr);
+                        reservations.remove(index);
+                        return;
+                    }
+                    ctr++;
+                }
+            }
+        }
+    }
+
+    /**
      * Displays room reservation details.
      * <ul>
      *     <li>1 if there are reservations</li>
@@ -307,7 +369,6 @@ public class Hotel {
      */
     public int dispRoomReservation(){
         int ctr = 1, index = 0;
-
         System.out.println("Reservations at " + hotelName);
         if(!reservations.isEmpty()) { // check if arraylist is not empty
             for (Reservation ignored : reservations) {
@@ -624,9 +685,18 @@ public class Hotel {
     }
 
     /**
+     * Gets the current rate of the selected day.
+     * @param day The date to be checked
+     * @return The rate for the selected day.
+     */
+    public float getRate(int day){
+        day -= 1; // Index of the day in DateModifier list
+        return dates.get(day).getPricePercent();
+    }
+
+    /**
      * Displays rate for each day
      */
-
     public void displayDayRate(){
         System.out.println("Day    Rate");
         for (DateModifier list : dates){

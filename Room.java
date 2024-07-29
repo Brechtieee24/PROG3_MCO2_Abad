@@ -69,6 +69,14 @@ public class Room {
     }
 
     /**
+     * Removes the reservation details stored in this room.
+     * @param index The index of the reservation to be removed.
+     */
+    public void removeReservation(int index){
+        reservations.remove(index);
+    }
+
+    /**
      * check if date is available
      * <p>
      *    Checks first if the reservation can be added by comparing the dates
@@ -108,7 +116,8 @@ public class Room {
     }
 
     /**
-     * Add a reservation to the room
+     * Adds a reservation to this room.
+     * @param reservation This contains the reservation details set to this room.
      */
     public void addReservation(Reservation reservation){
         reservations.add(reservation);

@@ -18,13 +18,13 @@ public class Driver {
     public static void main(String[] args) {
 
        int main, manage, manageHotel, index, reserveChoice;
-       ManageHotel mh = new ManageHotel();
        Scanner sc = new Scanner(System.in);
+       ManageHotel mh = new ManageHotel(sc);
+       mh.createHotel(3,3,3,"Echo");
+       mh.createHotel(5,0,4, "Bravo");
 
-        Hotel one = new Hotel("One", 1, 1, 1);
-        Hotel two = new Hotel("Two", 2, 2, 2);
-        mh.temphotel(one);
-        mh.temphotel(two);
+        GUI gui = new GUI();
+        new Controller(gui, mh);
 
        do{
            System.out.println("\n====================================");
@@ -35,7 +35,7 @@ public class Driver {
            System.out.println("[3] EXIT");
            System.out.print("\nPlease enter your choice: ");
 
-           main = mh.checkInt(sc);
+           main = mh.checkInt();
 
            // SET RESERVATION
            if(main == 1){
@@ -48,8 +48,8 @@ public class Driver {
                    System.out.println("Choose Hotel");
                    mh.displayHotels();
                    System.out.println();
-                   reserveChoice = mh.getIndex(sc);
-                   mh.setHotelReservation(reserveChoice, sc);
+                   reserveChoice = mh.getIndex();
+                   mh.setHotelReservation(reserveChoice);
                }
            }
 
@@ -64,19 +64,19 @@ public class Driver {
                    System.out.println("[2] VIEW HOTEL");
                    System.out.println("[3] MAIN MENU");
                    System.out.print("\nPlease enter your choice: ");
-                   manage = mh.checkInt(sc);
+                   manage = mh.checkInt();
 
                    // Create Hotel
                    if(manage == 1){
                        System.out.print("\033\143");
-                       mh.createHotel(sc);
+                       mh.createHotel();
                    }
 
                    // Manage Hotels
                    if (manage == 2) {
                        // If the hotel list is not empty
                        if (!mh.hotelEmpty()) {
-                           index = mh.getIndex(sc);
+                           index = mh.getIndex();
                            do{
                            System.out.print("\033\143");
                            System.out.println(mh.getHotelName(index));
@@ -94,43 +94,43 @@ public class Driver {
                            System.out.println("[12] REMOVE HOTEL");
                            System.out.println("[13] BACK");
                            System.out.print("\nPlease enter your choice: ");
-                               manageHotel = mh.checkInt(sc);
+                               manageHotel = mh.checkInt();
                                switch (manageHotel) {
                                    case 1:
-                                       mh.changeHotelName(index, sc);
+                                       mh.changeHotelName(index);
                                        break;
                                    case 2:
-                                       mh.addHotelRooms(index, sc);
+                                       mh.addHotelRooms(index);
                                        break;
                                    case 3:
-                                       mh.removeHotelRooms(index, sc);
+                                       mh.removeHotelRooms(index);
                                        break;
                                    case 4:
-                                       mh.checkRoomAvailability(index, sc);
+                                       mh.checkRoomAvailability(index);
                                        break;
                                    case 5:
-                                       mh.viewRoomInformation(index, sc);
+                                       mh.viewRoomInformation(index);
                                        break;
                                    case 6:
-                                       mh.setHotelBasePrice(index, sc);
+                                       mh.setHotelBasePrice(index);
                                        break;
                                    case 7:
-                                       mh.datePriceMod(index, sc);
+                                       mh.datePriceMod(index);
                                        break;
                                    case 8:
-                                       mh.displayRate(index, sc);
+                                       mh.displayRate(index);
                                        break;
                                    case 9:
-                                       mh.checkReservationInfo(index,sc);
+                                       mh.checkReservationInfo(index);
                                        break;
                                    case 10:
-                                       mh.removeHotelReservation(index, sc);
+                                       mh.removeHotelReservation(index);
                                        break;
                                    case 11:
-                                       mh.viewHighLevelHotel(index, sc);
+                                       mh.viewHighLevelHotel(index);
                                        break;
                                    case 12:
-                                       manageHotel = mh.removeHotel(index, sc);
+                                       manageHotel = mh.removeHotel(index);
                                        break;
                                    case 13:
                                        break;

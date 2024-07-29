@@ -76,13 +76,12 @@ public class Reservation {
         int lengthOfStay = checkOutDate - checkInDate;
         float pricePerNight = getTotalPrice() / lengthOfStay;
 
-        return "\n[Room " + this.roomNum + "]\n" +
-                "Guest Name: " + getGuestName() + "\n" +
-                "Check-in Date: " + getCheckInDate() + "\n" +
-                "Check-out Date: " + getCheckOutDate() + "\n" +
-                "Length of Stay: " + lengthOfStay + " days\n" +
-                "Price per night: " + String.format("%.2f", pricePerNight) + "\n\n" +
-                "TOTAL PRICE: " + String.format("%.2f", getTotalPrice() ) + "\n";
-
+        return "[Room " + this.roomNum + "]\n" +
+                " Guest Name: " + getGuestName() + "\n" +
+                " Check-in Date: " + getCheckInDate() + "\n" +
+                " Check-out Date: " + getCheckOutDate() + "\n" +
+                " Length of Stay: " + lengthOfStay + " days\n" +
+                " Price per night: " + String.format("%.2f", pricePerNight) + "\n" +
+                " TOTAL PRICE: " + String.format("%.2f", getTotalPrice() ) + "\n";
     }
 }

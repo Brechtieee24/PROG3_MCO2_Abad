@@ -13,15 +13,14 @@ import java.util.Scanner;
  */
 public class ManageHotel {
     private ArrayList<Hotel> hotels; // Stores the hotels created
+    private Scanner sc; // Scanner for command line inputs
 
-    public void temphotel(Hotel hotel) {
-        hotels.add(hotel);
-    }
     /**
      * Constructor for ManageHotel
      */
-    public ManageHotel() {
+    public ManageHotel(Scanner sc) {
         this.hotels = new ArrayList<>();
+        this.sc = sc;
     }
 
     /**
@@ -36,9 +35,8 @@ public class ManageHotel {
      *     does not exceed the specifications of only having 50 rooms
      *     at most.
      * </p>
-     * @param sc Passes the scanner from 'Driver': {@link Driver}.
      */
-    public void createHotel(Scanner sc){
+    public void createHotel(){
         String name, temp1, temp2;
         int numStd, numDlx, numExe, numOfRooms = 1, equals;
 
@@ -87,16 +85,26 @@ public class ManageHotel {
     }
 
     /**
+     * Creates a hotel using GUI.
+     * @param std The number of standard rooms.
+     * @param dlx The number of deluxe rooms.
+     * @param exe The number of executive rooms.
+     * @param name The name of the hotel.
+     */
+    public void createHotel(int std, int dlx, int exe, String name){
+        hotels.add(new Hotel(name, exe, dlx, std));
+    }
+
+    /**
      * Checks if the inputted value is a valid integer.
      * <p>
      *     This method reduces the number of lines needed as integer values
      *     are much needed in this project. It makes sure that the value is
      *     a valid integer then returns it.
      * </p>
-     * @param sc Passes the scanner from 'Driver': {@link Driver}.
      * @return The valid integer value input.
      */
-    public int checkInt(Scanner sc){
+    public int checkInt(){
         boolean check = false;
 
         int main = -1;
@@ -122,18 +130,17 @@ public class ManageHotel {
      *     minus one to remain within the arraylist bounds. This index is then
      *     stored and passed to the methods in the menu.
      *</p>
-     * @param sc Passes the scanner from 'Driver': {@link Driver}.
      * @return The index of the hotel in the arraylist.
      */
-    public int getIndex(Scanner sc){
+    public int getIndex(){
         int index, num;
 
         System.out.print("Enter hotel number: ");
-        num = checkInt(sc);
+        num = checkInt();
 
         while (num < 1 || num > hotels.size()) {
             System.out.print("\nNumber selected is not on the list. Please enter a valid number: ");
-            num = checkInt(sc);
+            num = checkInt();
         }
         index = num - 1;
         return index;
@@ -179,6 +186,7 @@ public class ManageHotel {
     public String getHotelName(int index){
         return hotels.get(index).getHotelName();
     }
+
     /**
      * Changes the name of the selected hotel.
      *<p>
@@ -186,9 +194,8 @@ public class ManageHotel {
      *     has a prompt to continue the changing of name or it exits.
      *</p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void changeHotelName(int index, Scanner sc){
+    public void changeHotelName(int index){
         int choice, equals;
         String name, old = hotels.get(index).getHotelName(); // retrieve old name
         String temp1, temp2;
@@ -215,7 +222,7 @@ public class ManageHotel {
          System.out.println("[1] YES (This is irreversible!)");
          System.out.println("[2] NO");
          System.out.print("Enter your choice: ");
-         choice = checkInt(sc);
+         choice = checkInt();
 
          switch (choice) {
              case 1:
@@ -229,6 +236,25 @@ public class ManageHotel {
     }
 
     /**
+     * Sets the hotel name when changed via GUI.
+     * @param index The hotel index.
+     * @param newName The new name of the hotel
+     * @return A boolean value if the change operation is successful.
+     */
+    public boolean changeHotelNameGui(int index, String newName){
+        String oldName;
+        for(Hotel hotel : hotels){
+            oldName = hotel.getHotelName().toLowerCase();
+            newName = newName.toLowerCase();
+            if (oldName.equals(newName)) {
+                return false;
+            }
+        }
+        hotels.get(index).setHotelName(newName);
+        return true;
+    }
+
+    /**
      * Add rooms in the selected hotel.
      *<p>
      *     This method adds hotel rooms in a hotel. It has a boolean
@@ -236,9 +262,8 @@ public class ManageHotel {
      *     from the method that adds room in 'Hotel':{@link Hotel}.
      *</p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void addHotelRooms(int index, Scanner sc){
+    public void addHotelRooms(int index){
         int newNum, choice, roomType;
         boolean success = false;
         String type = "";
@@ -248,11 +273,11 @@ public class ManageHotel {
                 displayRoomCount(index);
 
                 System.out.print("Enter number of rooms to be added: ");
-                newNum = checkInt(sc);
+                newNum = checkInt();
                 System.out.println("\nSelect the type of Room:" +
                                     "\n [1] Standard Room" + "\n [2] Deluxe Room" + "\n [3] Executive Room");
                 System.out.print("Enter choice: ");
-                roomType = checkInt(sc);
+                roomType = checkInt();
 
                 type = switch (roomType) {
                     case 1 -> "Standard Room";
@@ -264,7 +289,7 @@ public class ManageHotel {
                 System.out.println("[1] YES (This is irreversible!)");
                 System.out.println("[2] NO");
                 System.out.print("Enter your choice: ");
-                choice = checkInt(sc);
+                choice = checkInt();
 
                 switch (choice) {
                     case 1:
@@ -303,9 +328,8 @@ public class ManageHotel {
      *          to the hotel management interface. </li>
      * </ul>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void removeHotelRooms(int index, Scanner sc) {
+    public void removeHotelRooms(int index) {
         int remove, choice, type;
         boolean success = false;
 
@@ -320,13 +344,13 @@ public class ManageHotel {
                 System.out.println("\nRemove rooms at " + hotels.get(index).getHotelName());
                 displayRoomCount(index);
                 System.out.print("Enter room to be removed: ");
-                remove = checkInt(sc);
+                remove = checkInt();
 
                 System.out.println("\nAre you sure you want to remove Room " + remove + "?");
                 System.out.println("[1] YES (This is irreversible!)");
                 System.out.println("[2] NO");
                 System.out.print("Enter your choice: ");
-                choice = checkInt(sc);
+                choice = checkInt();
 
                 switch (choice) {
                     case 1:
@@ -336,7 +360,7 @@ public class ManageHotel {
                             System.out.println("[1] YES ");
                             System.out.println("[2] NO");
                             System.out.print("Enter your choice: ");
-                            choice = checkInt(sc);
+                            choice = checkInt();
                             if (choice == 1) {
                                 break;
                             }
@@ -367,17 +391,15 @@ public class ManageHotel {
     }
 
     /**
-     * Display room count
-     * @param index
+     * Displays room count
+     * @param index The index of the hotel.
      */
-
     public void displayRoomCount(int index) {
         System.out.println("Current number of rooms: " + hotels.get(index).getRooms().size());
         System.out.println("Standard Rooms: " + hotels.get(index).numStandard() + " [101 to " + (100+ hotels.get(index).numStandard()) + "]");
         System.out.println("Deluxe Rooms: " + hotels.get(index).numDeluxe() + " [201 to " + (200+ hotels.get(index).numDeluxe()) + "]");
         System.out.println("Executive Rooms: " + hotels.get(index).numExec() + " [301 to " + (300+ hotels.get(index).numExec()) + "]");
     }
-
 
     /**
      * Sets base price for the selected hotel.
@@ -388,9 +410,8 @@ public class ManageHotel {
      *     a base price greater than 100.0
      *</p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void setHotelBasePrice(int index, Scanner sc){
+    public void setHotelBasePrice(int index){
         float price = 0.0f, dlxPrice = 0.0f, exePrice = 0.0f, stdPrice = 0.0f;
         boolean success = false;
         int choice;
@@ -417,7 +438,7 @@ public class ManageHotel {
                 System.out.println("[1] YES (This is irreversible!)");
                 System.out.println("[2] NO");
                 System.out.print("Enter your choice: ");
-                choice = checkInt(sc);
+                choice = checkInt();
 
                 switch (choice) {
                     case 1:
@@ -468,9 +489,8 @@ public class ManageHotel {
      *     not having a check-out on the 1st of the month.
      *</p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void setHotelReservation(int index, Scanner sc){
+    public void setHotelReservation(int index){
         String guestName;
         int checkInDate, checkOutDate, roomOpt, choice, vouchChoice, vouchType;
         boolean success = false, checkOut;
@@ -486,7 +506,7 @@ public class ManageHotel {
 
             do{
                 System.out.print("Enter check in date: ");
-                checkInDate = checkInt(sc);
+                checkInDate = checkInt();
                 if (checkInDate > 30 || checkInDate < 1){
                     System.out.println("\nCheck in date must be from 1 to 30 only");
                 }
@@ -494,7 +514,7 @@ public class ManageHotel {
 
             do {
                 System.out.print("Enter check out date: ");
-                checkOutDate = checkInt(sc);
+                checkOutDate = checkInt();
                 checkOut = !(checkInDate > checkOutDate || checkOutDate > 31 || checkOutDate < 2 || checkInDate == checkOutDate);
                 if (!checkOut) {
                     System.out.println("\nCheck out date must be within the month (" + (checkInDate + 1) + " to 31 only)");
@@ -508,7 +528,7 @@ public class ManageHotel {
                 System.out.println("[2] Deluxe Room");
                 System.out.println("[3] Executive Room");
                 System.out.print("Enter selection: ");
-                roomOpt = checkInt(sc);
+                roomOpt = checkInt();
             } while (roomOpt < 1 || roomOpt > 3);
 
             roomType = switch (roomOpt) {
@@ -523,7 +543,7 @@ public class ManageHotel {
                 System.out.println("[1] Yes");
                 System.out.println("[2] No");
                 System.out.print("Enter your option: ");
-                vouchChoice = checkInt(sc);
+                vouchChoice = checkInt();
                 do {
                     if (vouchChoice == 1) {
                         System.out.print("Voucher Code: ");
@@ -539,7 +559,7 @@ public class ManageHotel {
                             System.out.println("[1] Yes");
                             System.out.println("[2] No");
                             System.out.print("Enter your option: ");
-                            vouchChoice = checkInt(sc);
+                            vouchChoice = checkInt();
                             totalPrice = hotels.get(index).computeTotal(0, checkInDate, checkOutDate, roomOpt);
                         }
                     }
@@ -560,7 +580,7 @@ public class ManageHotel {
                 System.out.println("\n[1] Continue Reservation");
                 System.out.println("[2] Cancel Reservation");
                 System.out.print("Enter your choice: ");
-                choice = checkInt(sc);
+                choice = checkInt();
 
                 if (choice == 1){ // Continue to setting the reservation
                     success = hotels.get(index).setReservation(guestName, checkInDate, checkOutDate, roomOpt, totalPrice);
@@ -579,7 +599,7 @@ public class ManageHotel {
                             System.out.println("[1] Yes");
                             System.out.println("[2] Go back to main menu");
                             System.out.print("Enter your option: ");
-                            choice = checkInt(sc);
+                            choice = checkInt();
                         } while (choice != 1 && choice != 2);
 
                         if (choice == 2) {
@@ -606,9 +626,8 @@ public class ManageHotel {
      *     in the 'Hotel':{@link Hotel}.
      * </p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void removeHotelReservation(int index, Scanner sc){
+    public void removeHotelReservation(int index){
         hotels.get(index).removeReservation(sc);
     }
 
@@ -623,10 +642,9 @@ public class ManageHotel {
      *     <li> 0 if the removing of hotel is cancelled</li>
      * </ul>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      * @return The corresponding value whether to continue the loop in 'Driver':{@link Driver}.
      */
-    public int removeHotel (int index, Scanner sc) {
+    public int removeHotel (int index) {
         int choice = -1;
         String temp = hotels.get(index).getHotelName();
 
@@ -640,7 +658,7 @@ public class ManageHotel {
 
                     // Check if the input value is an integer
                     if(sc.hasNextInt())
-                        choice = checkInt(sc);
+                        choice = checkInt();
                     else
                         sc.nextLine();
 
@@ -661,12 +679,23 @@ public class ManageHotel {
     }
 
     /**
-     * Displays high-level information of the selected hotel.
-     *
-     * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
+     * Removes a hotel using GUI.
+     * @param index The hotel index.
+     * @return The boolean value of the operation.
      */
-    public void viewHighLevelHotel(int index, Scanner sc){
+    public boolean removeHotelgui (int index){
+        if(hotels.get(index).isReservationEmpty()) {
+            hotels.remove(index);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Displays high-level information of the selected hotel.
+     * @param index The index of the hotel selected.
+     */
+    public void viewHighLevelHotel(int index){
         System.out.print("\033\143");
         hotels.get(index).dispHighInfo();
         System.out.print("\nPress enter to exit...");
@@ -682,15 +711,14 @@ public class ManageHotel {
      *</p>
      *
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void viewRoomInformation(int index, Scanner sc){
+    public void viewRoomInformation(int index){
         int roomNum;
         boolean valid = false;
 
         while (!valid) {
             System.out.print("Enter room number: ");
-            roomNum = checkInt(sc);
+            roomNum = checkInt();
 
             for (Room room : hotels.get(index).getRooms()) {
                 if (room.getRoomNum() == roomNum) {
@@ -715,30 +743,60 @@ public class ManageHotel {
      *     Prompts the user to input the date to be checked.
      *</p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void checkRoomAvailability(int index, Scanner sc){
-        int date, booked = 0, numRoom = hotels.get(index).getRooms().size();
+    public void checkRoomAvailability(int index){
+        int date, booked = 0, numRoom = hotels.get(index).getRooms().size(), std = 0, dlx = 0, exe = 0;
 
             do {
                 System.out.print("Enter date to check availability: ");
-                date = checkInt(sc);
+                date = checkInt();
             } while (date < 1 || date > 31);
 
             // Iterates through the rooms to check the available rooms on the selected date
-            for(Room room : hotels.get(index).getRooms()){
-                for(Reservation reservation : room.getReservations()){
-                    if(date >= reservation.getCheckInDate() && date < reservation.getCheckOutDate()){
-                        booked++;
-                    }
+        for(Room room : hotels.get(index).getRooms()){
+            for(Reservation reservation : room.getReservations()){
+                if(date >= reservation.getCheckInDate() && date < reservation.getCheckOutDate()){
+                    if(room instanceof StandardRoom)
+                        std++;
+                    if(room instanceof DeluxeRoom)
+                        dlx++;
+                    if(room instanceof ExecutiveRoom)
+                        exe++;
                 }
             }
-
-            System.out.println("\nNumber of available rooms: " + (numRoom - booked));
-            System.out.println("Number of booked rooms: " + booked);
+        }
+            System.out.println("\nStandard Room: " + (hotels.get(index).numStandard() - std)+ " available (" + std + " booked)" +
+                "\nDeluxe Room: " + (hotels.get(index).numDeluxe() - dlx)+ " available (" + dlx + " booked)" +
+                "\nExecutive Room: " + (hotels.get(index).numExec() - exe)+ " available (" + exe + " booked)");
 
             System.out.print("\nPress enter to continue...");
             sc.nextLine();
+    }
+
+    /**
+     * Gets the number of available rooms on the selected date.
+     * @param index The hotel index.
+     * @param date The date to be checked.
+     * @return The number of available rooms on the selected date.
+     */
+    public String checkRoomAvailabilityGUI(int index, int date){
+        int std = 0, dlx = 0, exe = 0, numRoom = hotels.get(index).getRooms().size();
+        // Iterates through the rooms to check the available rooms on the selected date
+        for(Room room : hotels.get(index).getRooms()){
+            for(Reservation reservation : room.getReservations()){
+                if(date >= reservation.getCheckInDate() && date < reservation.getCheckOutDate()){
+                    if(room instanceof StandardRoom)
+                        std++;
+                    if(room instanceof DeluxeRoom)
+                        dlx++;
+                    if(room instanceof ExecutiveRoom)
+                        exe++;
+                }
+            }
+        }
+        return "\nStandard Room: " + (hotels.get(index).numStandard() - std)+ " available (" + std + " booked)" +
+               "\nDeluxe Room: " + (hotels.get(index).numDeluxe() - dlx)+ " available (" + dlx + " booked)" +
+                "\nExecutive Room: " + (hotels.get(index).numExec() - exe)+ " available (" + exe + " booked)";
     }
 
     /**
@@ -749,36 +807,29 @@ public class ManageHotel {
      *     hotel.
      * </p>
      * @param index The index of the hotel selected.
-     * @param sc Passes the scanner from 'Driver':{@link Driver}.
      */
-    public void checkReservationInfo(int index, Scanner sc){
+    public void checkReservationInfo(int index){
        int choice;
-
-       if (hotels.get(index).getReservations().isEmpty()){
+       if (hotels.get(index).getReservations().isEmpty())
            System.out.println("\nNo reservations found");
-        }
-
        else {
            do {
                System.out.print("\033\143");
                hotels.get(index).dispRoomReservation();
                System.out.print("\nEnter reservation to check: ");
-               choice = checkInt(sc) - 1;
+               choice = checkInt() - 1;
            } while (choice > hotels.get(index).getReservations().size() - 1 || choice < 0);
            hotels.get(index).viewReservationInfo(choice);
        }
-
         System.out.print("Press enter to continue...");
         sc.nextLine();
-
     }
 
     /**
-     * Modify
-     * @param index
-     * @param sc
+     * Modifies the date using command line interface.
+     * @param index The index of the hotel to be changed.
      */
-    public void datePriceMod(int index, Scanner sc){
+    public void datePriceMod(int index){
         ArrayList<DateModifier> dateList = hotels.get(index).getDates();
         int dateChoice, option;
         float prevPct = 0.0f, newPct = 0.0f;
@@ -786,7 +837,7 @@ public class ManageHotel {
         hotels.get(index).displayDayRate();
         do {
             System.out.print("\nEnter date to modify: ");
-            dateChoice = checkInt(sc);
+            dateChoice = checkInt();
         } while (dateChoice < 1 || dateChoice > 31);
 
         for(DateModifier list : dateList){
@@ -813,14 +864,13 @@ public class ManageHotel {
             }
         } while (newPct < 50.0f || newPct > 150.0f);
 
-
         do{
             System.out.println("\nModifying rate on day " + dateChoice);
             System.out.println("from " + (prevPct*100) + "% to " + newPct +"%");
             System.out.println("[1] CONTINUE (This is irreversible!)");
             System.out.println("[2] CANCEL MODIFICATION");
             System.out.print("Enter your choice: ");
-            option = checkInt(sc);
+            option = checkInt();
 
             if(option == 1) {
                 hotels.get(index).modifyDate(dateChoice, newPct / 100);
@@ -833,14 +883,29 @@ public class ManageHotel {
     }
 
     /**
-     * List them
-     * @param index
-     * @param sc
+     * List the rates of each day.
+     * @param index The index of the hotel selected.
      */
-    public void displayRate(int index, Scanner sc){
+    public void displayRate(int index){
         hotels.get(index).displayDayRate();
         System.out.print("\nPress enter to continue...");
         sc.nextLine();
     }
 
+    /**
+     * Getter for the hotels stored in this class.
+     * @return The arraylist of 'Hotels': {@link Hotel}.
+     */
+    public ArrayList<Hotel> getHotels(){
+        return hotels;
+    }
+
+    /**
+     * Returns the hotel selected.
+     * @param index The index of the hotel to be returned.
+     * @return The hotel object.
+     */
+    public Hotel getHotel(int index){
+        return hotels.get(index);
+    }
 }
