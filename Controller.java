@@ -125,7 +125,7 @@ public class Controller {
                     }
                 }
 
-                if(totalRooms !=0 && !hotelName.isEmpty() && nameIsUnique){
+                if(!hotelName.isEmpty() && nameIsUnique && (totalRooms > 0 && totalRooms < 50)){
                     hotelManager.createHotel(std, dlx, exe, hotelName);
                     JOptionPane.showMessageDialog(null, "Successfully added " + hotelName);
                     gui.setHotelListDropDown(getHotelNames());
@@ -225,6 +225,8 @@ public class Controller {
                                     JOptionPane.showMessageDialog(null, "Room does not exist", "Cannot remove room", JOptionPane.INFORMATION_MESSAGE);
                                 else if (result == 0)
                                     JOptionPane.showMessageDialog(null, "Room is occupied", "Cannot remove room", JOptionPane.ERROR_MESSAGE);
+                                else if (result == -2)
+                                    JOptionPane.showMessageDialog(null, "There must be at least one room!", "Cannot remove room", JOptionPane.ERROR_MESSAGE);
                                 else
                                     JOptionPane.showMessageDialog(null, "Successfully removed Room " + roomNum);
                             } catch (Exception ex){
@@ -405,7 +407,7 @@ public class Controller {
                         gui.addRooms(hotelManager.getHotel(hotelIndex).getRooms().size(), output);
                         JOptionPane.showMessageDialog(null, "Successfully added " + addedRooms + " rooms!");
                     }else
-                        JOptionPane.showMessageDialog(null, "Hotel rooms should only be <50", "Cannot add room",
+                        JOptionPane.showMessageDialog(null, "Hotel rooms should only be <= 50", "Cannot add room",
                                 JOptionPane.ERROR_MESSAGE);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Enter a valid numerical value!", "Cannot add room",

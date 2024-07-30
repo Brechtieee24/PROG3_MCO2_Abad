@@ -918,10 +918,7 @@ public class GUI {
      * @return The number of standard rooms.
      */
     public int getStdRooms(){
-        Object std = getNewStdRoomDropdown().getSelectedItem();
-        if(std instanceof Integer)
-            return (Integer) std;
-        return -1;
+        return getNewStdRoomDropdown().getSelectedIndex();
     }
 
     /**
@@ -929,10 +926,7 @@ public class GUI {
      * @return The number of deluxe rooms.
      */
     public int getDlxRooms(){
-        Object std = getNewDlxRoomDropdown().getSelectedItem();
-        if(std instanceof Integer)
-            return (Integer) std;
-        return -1;
+        return getNewDlxRoomDropdown().getSelectedIndex();
     }
 
     /**
@@ -940,10 +934,7 @@ public class GUI {
      * @return The number of executive rooms.
      */
     public int getExeRooms(){
-        Object std = getNewExeRoomDropdown().getSelectedItem();
-        if(std instanceof Integer)
-            return (Integer) std;
-        return -1;
+        return getNewExeRoomDropdown().getSelectedIndex();
     }
 
     /**

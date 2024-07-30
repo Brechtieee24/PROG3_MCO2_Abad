@@ -20,8 +20,6 @@ public class Driver {
        int main, manage, manageHotel, index, reserveChoice;
        Scanner sc = new Scanner(System.in);
        ManageHotel mh = new ManageHotel(sc);
-       mh.createHotel(3,3,3,"Echo");
-       mh.createHotel(5,0,4, "Bravo");
 
         GUI gui = new GUI();
         new Controller(gui, mh);

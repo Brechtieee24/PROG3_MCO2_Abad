@@ -508,12 +508,15 @@ public class Hotel {
             return 0;
         }
 
-        rooms.remove(index);
-        System.out.println("\nSuccessfully removed Room " + room);
-        for (int j = index; j < rooms.size(); j++) {
-            rooms.get(j).setRoomNum(rooms.get(j).getRoomNum() - 1);
+        if(rooms.size() - 1 != 0) {
+            rooms.remove(index);
+            System.out.println("\nSuccessfully removed Room " + room);
+            for (int j = index; j < rooms.size(); j++) {
+                rooms.get(j).setRoomNum(rooms.get(j).getRoomNum() - 1);
+            }
+            return 1;
         }
-        return 1;
+        return -2;
     }
 
     /**
